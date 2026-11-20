@@ -1,0 +1,433 @@
+<title>Laboratorio virtuale · Reti in continua</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Laboratorio virtuale individuale: trasformazione dei generatori reali e stella-triangolo, con relazione e voto automatici.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#F7F9FC;--card:#FFFFFF;--fg:#1E2633;--navy:#132B4F;--blue:#2667A8;--soft:#E6EEF7;--line:#B9C4D2;--orange:#FDE3C4;--ok:#0B5D2E;--bad:#8A1C1C;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B2D;--card:#18283F;--fg:#F3F6FA;--navy:#DCE7F5;--blue:#8DB8E8;--soft:#22344F;--line:#4A6080;--orange:#4A3418;--ok:#8FE3B0;--bad:#FFB4B4;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1B2D;--card:#18283F;--fg:#F3F6FA;--navy:#DCE7F5;--blue:#8DB8E8;--soft:#22344F;--line:#4A6080;--orange:#4A3418;--ok:#8FE3B0;--bad:#FFB4B4;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:18px/1.5 "Calibri","Segoe UI",Arial,sans-serif;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px;-webkit-user-select:none;user-select:none;overflow-x:hidden}
+input{-webkit-user-select:text;user-select:text}
+h1{font-size:30px;margin:0 0 4px;color:var(--navy)}
+h2{font-size:24px;margin:0 0 10px;color:var(--navy)}
+h3{font-size:20px;margin:18px 0 8px;color:var(--navy)}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;border-bottom:3px solid var(--blue);padding-bottom:10px;margin-bottom:16px}
+.cls{font-weight:700;color:var(--blue)}
+.note{font-size:17px;color:var(--fg)}
+button,input{font:inherit}
+button{cursor:pointer;border:2px solid var(--navy);background:var(--card);color:var(--navy);border-radius:10px;padding:10px 16px;min-height:48px}
+button:focus-visible,input:focus-visible{outline:4px solid var(--orange);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:var(--navy);color:#fff}
+.tabs{grid-column:1/-1}
+.tab{border-radius:999px;margin-right:8px}
+.tab[aria-current="step"]{background:var(--blue);color:#fff;border-color:var(--blue)}
+#login{max-width:560px;margin:30px auto;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:22px}
+#login label{display:block;font-size:20px;font-weight:700;margin-bottom:8px}
+#login input{width:100%;font-size:22px;padding:12px;border:2px solid var(--navy);border-radius:10px;background:var(--card);color:var(--fg);letter-spacing:.06em}
+#err{color:var(--bad);min-height:24px;font-weight:700}
+.lab{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:18px;align-items:start}
+#console{position:sticky;top:12px;background:var(--card);border:2px solid var(--navy);border-radius:16px;padding:16px;min-width:0}
+#bench{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.meter{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:17px}
+.meter strong{font-size:24px;font-variant-numeric:tabular-nums;color:var(--navy);white-space:nowrap}
+.switches{display:grid;gap:8px;margin:10px 0}
+.sw{text-align:left;background:var(--soft)}
+.sw[aria-pressed="true"]{background:var(--orange);color:var(--fg)}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-weight:700;font-size:17px;margin-bottom:4px}
+.field em{font-style:normal;color:var(--fg);font-weight:400}
+.field input{width:100%;font-size:21px;padding:9px 12px;border:2px solid var(--navy);border-radius:10px;background:var(--card);color:var(--fg);font-variant-numeric:tabular-nums}
+.metodo{background:var(--soft);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:18px}
+.metodo summary{font-weight:700;color:var(--navy);cursor:pointer;font-size:20px;min-height:40px}
+.metodo li{margin-bottom:6px}
+.task{font-size:19px;margin:0 0 10px}
+.voice{margin-bottom:12px}
+.schema{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px;margin-bottom:12px}
+.schema svg{width:100%;height:auto;display:block}
+.schema .sl{font:700 19px "Calibri",Arial,sans-serif;fill:var(--fg)}
+.split{margin-top:8px}
+.plate{background:var(--soft);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:17px}
+.mcq{border:2px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.mcq legend{font-weight:700;padding:0 6px;font-size:18px}
+.opt{display:block;padding:6px 4px;font-size:18px}
+.opt input{width:20px;height:20px;margin-right:8px;accent-color:var(--navy)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.esito{margin-top:18px;border-top:3px solid var(--blue);padding-top:12px}
+.esito li{font-size:17px;margin-bottom:4px}
+#wm{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#wm div{position:absolute;white-space:nowrap;font:700 26px Arial,sans-serif;color:rgba(19,43,79,.035);transform:rotate(-24deg)}
+#wm div:nth-child(1){left:-10%;top:8%}#wm div:nth-child(2){left:40%;top:4%}#wm div:nth-child(3){left:-5%;top:32%}#wm div:nth-child(4){left:45%;top:30%}#wm div:nth-child(5){left:-8%;top:58%}#wm div:nth-child(6){left:42%;top:56%}#wm div:nth-child(7){left:-4%;top:82%}#wm div:nth-child(8){left:44%;top:84%}
+.wrap{position:relative;z-index:1}
+#guard{position:fixed;inset:0;z-index:50;background:rgba(15,27,45,.92);color:#fff;display:flex;align-items:center;justify-content:center;padding:20px}
+#guard[hidden]{display:none!important}
+#guard div{background:#fff;color:#1E2633;border-radius:16px;padding:24px;max-width:520px;font-size:20px}
+#guard h2{color:#8A1C1C}
+#guard button{background:#132B4F;color:#fff;margin-top:12px}
+@media (max-width:820px){.lab{grid-template-columns:1fr}#console{position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+<div id="wm" aria-hidden="true"></div>
+<div id="guard" role="alertdialog" aria-labelledby="gTitle" hidden><div>
+  <h2 id="gTitle">Prova sospesa</h2>
+  <p>Hai lasciato la finestra della prova. L'uscita è registrata nella relazione.</p>
+  <p>Uscite registrate finora: <strong id="guardN">0</strong></p>
+  <button id="guardBtn" type="button">Torna alla prova</button>
+</div></div>
+<div class="wrap">
+<header class="top">
+  <div><h1>Laboratorio virtuale</h1><div class="cls">Reti in continua · Classe 3E AU · A.S. 2026-27</div></div>
+  <div id="who" class="note"></div>
+  <button id="fullBtn" type="button">Schermo intero</button>
+</header>
+<section id="login">
+  <form id="form">
+    <label for="code">Codice personale</label>
+    <input id="code" autocomplete="off" placeholder="3EAU-00" maxlength="12" aria-describedby="err">
+    <p class="note">Inserisci il codice che ti ha dato la prof. Il codice decide i dati del tuo circuito.</p>
+    <button class="primary" type="submit">Inizia la prova</button>
+    <p id="err" role="alert"></p>
+  </form>
+</section>
+<main id="lab" class="lab" hidden>
+  <div id="tabs" class="tabs"></div>
+  <aside id="console" aria-label="Console di misura"></aside>
+  <section id="bench" aria-label="Banco di lavoro"><h2 id="titolo"></h2></section>
+</main>
+</div>
+
+<script>
+// ===== MOTORE DEL LABORATORIO (moduli, dati, misure, correzione) =====
+function hash32(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pick(r,a){return a[Math.floor(r()*a.length)];}
+function shuffle(r,a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function fmt(x,d){d=d===undefined?2:d;return Number(x).toFixed(d).replace('.',',');}
+function near(a,b){if(a===''||a===null||a===undefined||isNaN(Number(String(a).replace(',','.'))))return false;const x=Number(String(a).replace(',','.'));return Math.abs(x-b)<=Math.max(0.02*Math.abs(b),0.01);}
+
+// ---- Prova 1: generatori reali ----
+function buildGen(r){
+  const E=pick(r,[6,9,12,15,18,24]), Ri=pick(r,[0.5,1,1.5,2,2.5,4]), RL=pick(r,[2,3,4,6,8,10,12]);
+  const E2=pick(r,[4,6,8,10,12]), Gi2=pick(r,[0.2,0.25,0.5,1,2]);
+  const Icc2=E2*Gi2; const p={E,Ri,RL,E2,Gi2,Icc2};
+  const GL=1/RL, Gi=1/Ri, Icc=E/Ri;
+  const items=[
+    {id:'g1',label:'Tensione a vuoto V₀ del generatore di tensione',unit:'V',ans:E,typ:[]},
+    {id:'g2',label:'Corrente di corto circuito I_cc',unit:'A',ans:Icc,typ:[{v:E*Ri,msg:'Hai moltiplicato E per R_i invece di dividere.'}]},
+    {id:'g3',label:'Resistenza interna R_i = V₀ / I_cc',unit:'Ω',ans:Ri,typ:[{v:Icc/E,msg:'Hai invertito il rapporto: R_i = V₀ / I_cc.'}]},
+    {id:'g4',label:'Conduttanza interna G_i = 1 / R_i',unit:'S',ans:Gi,typ:[{v:Ri,msg:'Hai scritto R_i al posto di G_i.'}]},
+    {id:'g5',label:'Corrente nel carico I_L con il generatore di corrente equivalente',unit:'A',ans:Icc*GL/(Gi+GL),typ:[{v:Icc*Gi/(Gi+GL),msg:'Hai scambiato G_i e G_L nel partitore di corrente.'}]},
+    {id:'g6',label:'Tensione sul carico V_L = I_L · R_L',unit:'V',ans:E*RL/(Ri+RL),typ:[{v:E,msg:'Hai dato la tensione a vuoto: sotto carico V_L è minore.'}]},
+    {id:'g7',label:'Tensione a vuoto E₂ del generatore di tensione equivalente al secondo generatore',unit:'V',ans:E2,typ:[{v:Icc2*Gi2,msg:'Hai moltiplicato invece di dividere: E = I_cc / G_i.'}]},
+    {id:'g8',label:'Resistenza interna R₂ = 1 / G₂ del secondo generatore',unit:'Ω',ans:1/Gi2,typ:[{v:Gi2,msg:'Hai scritto G al posto di R.'}]},
+  ];
+  const mcq=[
+    {id:'m1',q:'Nel generatore reale di corrente, la conduttanza interna G_i è:',opts:[{t:'in parallelo al generatore di corrente',ok:true},{t:'in serie al generatore di corrente',ok:false},{t:'non c’è nessuna conduttanza',ok:false}]},
+    {id:'m2',q:'Due generatori reali sono equivalenti quando:',opts:[{t:'danno la stessa tensione e la stessa corrente per ogni carico collegato ai morsetti',ok:true},{t:'hanno la stessa potenza interna',ok:false},{t:'sono uguali solo in corto circuito',ok:false}]},
+  ];
+  mcq.forEach(m=>m.opts=shuffle(r,m.opts));
+  return {p,items,mcq,titolo:'Prova 1 · Trasformazione dei generatori reali'};
+}
+function genState(p,s){ // s:{short,load}
+  if(s.short) return {V:0,I:p.E/p.Ri};
+  if(s.load) return {V:p.E*p.RL/(p.Ri+p.RL),I:p.E/(p.Ri+p.RL)};
+  return {V:p.E,I:0};
+}
+
+// ---- Prova 2: stella e triangolo ----
+function buildST(r){
+  const t=[pick(r,[2,3,4,6,8,12]),pick(r,[2,3,4,6,8,12]),pick(r,[2,3,4,6,8,12])]; // t12,t23,t31
+  while(t[0]===t[1]&&t[1]===t[2]) t[2]=pick(r,[2,3,4,6,8,12]);
+  const [t12,t23,t31]=t, S=t12+t23+t31;
+  const s1=t12*t31/S, s2=t12*t23/S, s3=t23*t31/S; // stella: s1 nodo1, s2 nodo2, s3 nodo3
+  const c=[pick(r,[1,2,3,4,5,6]),pick(r,[2,3,4,6,8]),pick(r,[1,2,3,5,6])];
+  const P=c[0]*c[1]+c[1]*c[2]+c[2]*c[0];
+  const T12=P/c[2];
+  const E=pick(r,[6,9,12,18]);
+  const prod=(a,b)=>a*b/S;
+  const items=[
+    {id:'s1',label:'Resistenza R₁ della stella al nodo 1',unit:'Ω',ans:s1,typ:[{v:prod(t23,t31),msg:'Hai preso i lati che NON toccano il nodo 1.'},{v:S/(t12*t31),msg:'Hai invertito la formula: la stella ha prodotto sopra la somma.'}]},
+    {id:'s2',label:'Resistenza R₂ della stella al nodo 2',unit:'Ω',ans:s2,typ:[{v:prod(t12,t31),msg:'Hai preso i lati che NON toccano il nodo 2.'},{v:S/(t12*t23),msg:'Hai invertito la formula: la stella ha prodotto sopra la somma.'}]},
+    {id:'s3',label:'Resistenza R₃ della stella al nodo 3',unit:'Ω',ans:s3,typ:[{v:prod(t12,t23),msg:'Hai preso i lati che NON toccano il nodo 3.'},{v:S/(t23*t31),msg:'Hai invertito la formula: la stella ha prodotto sopra la somma.'}]},
+    {id:'s4',label:'Resistenza misurata tra 1 e 2 (nodo 3 libero) con la stella',unit:'Ω',ans:s1+s2,typ:[{v:s1*s2/(s1+s2),msg:'Hai messo R₁ e R₂ in parallelo: sono in serie tra 1 e 2.'}]},
+    {id:'s5',label:'Corrente erogata dal generatore E collegato tra 1 e 2',unit:'A',ans:E/(s1+s2),typ:[{v:E/(t12),msg:'Hai usato il lato del triangolo senza trasformare il circuito.'}]},
+    {id:'s6',label:'Lato del triangolo ricavato dalla stella: R₁₂ = P / R₃',unit:'Ω',ans:T12,typ:[{v:c[2]/P,msg:'Hai invertito il rapporto: R₁₂ = P / R₃.'}]},
+  ];
+  const mcq=[{id:'m3',q:'Con il nodo 3 libero, la resistenza tra 1 e 2 dopo la trasformazione è:',opts:shuffle(r,[{t:'R₁ + R₂',ok:true},{t:'R₁ · R₂ / (R₁ + R₂)',ok:false},{t:'R₁ · R₂ / S',ok:false}])}];
+  return {p:{t12,t23,t31,c1:c[0],c2:c[1],c3:c[2],E},items,mcq,titolo:'Prova 2 · Stella e triangolo',_s:{s1,s2,s3}};
+}
+function stState(p){ // misure: ohmmetro 1-2 e amperometro con E
+  const S=p.t12+p.t23+p.t31;
+  const R12=p.t12*(p.t23+p.t31)/S;
+  return {R12, I:p.E/R12};
+}
+
+// ---- correzione ----
+function checkItems(items,answers){
+  let pts=0; const out=[];
+  items.forEach(it=>{
+    const a=answers[it.id];
+    if(near(a,it.ans)){pts+=1; out.push({id:it.id,ok:true,pen:0,msg:'Corretto.'});return;}
+    const hit=(it.typ||[]).find(t=>near(a,t.v));
+    if(hit){pts-=0.5; out.push({id:it.id,ok:false,pen:-0.5,msg:hit.msg});}
+    else {out.push({id:it.id,ok:false,pen:0,msg:(a===''||a===undefined)?'Risposta mancante.':'Valore non corretto: ricontrolla il procedimento.'});}
+  });
+  return {pts,out};
+}
+function checkMcq(mcq,answers){
+  let pts=0; const out=[];
+  mcq.forEach(m=>{const chosen=m.opts[answers[m.id]]; const ok=!!(chosen&&chosen.ok); if(ok) pts+=1; out.push({id:m.id,ok,pen:0,msg:ok?'Corretto.':'Risposta errata.'});});
+  return {pts,out};
+}
+function grade(pts,total){ const p=Math.max(0,Math.min(total,pts)); return Math.max(1,Math.round((1+9*p/total)*10)/10); }
+
+// ===== INTERFACCIA =====
+
+// ===== MODALITÀ PROVA (sorveglianza nella pagina) =====
+const EX={viol:[],allow:false,start:null};
+function logViol(tipo){
+  if(!S||EX.allow||S.done) return;
+  EX.viol.push({t:new Date().toLocaleTimeString('it-IT'),tipo});
+  $('guardN').textContent=EX.viol.length;
+  $('guard').hidden=false;
+  $('guardBtn').focus();
+}
+function enterFull(){ try{ const el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }catch(e){} }
+function resume(){ $('guard').hidden=true; enterFull(); }
+window.addEventListener('blur',()=>logViol('cambio di finestra o scheda'));
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) logViol('scheda nascosta'); });
+document.addEventListener('fullscreenchange',()=>{ if(S && !document.fullscreenElement) logViol('uscita dallo schermo intero'); });
+document.addEventListener('keydown',(e)=>{
+  const k=(e.key||'').toLowerCase(); const inField=e.target&&e.target.tagName==='INPUT';
+  const combo=(e.ctrlKey||e.metaKey)&&['p','s','u','t','n','w','r','l','j','i','a'].includes(k);
+  const copyPaste=(e.ctrlKey||e.metaKey)&&['c','v','x'].includes(k)&&!inField;
+  if(e.key==='F12'||e.key==='F11'||e.key==='PrintScreen'||combo||copyPaste||(e.altKey&&e.key==='Tab')){ e.preventDefault(); logViol('scorciatoia bloccata: '+(e.ctrlKey||e.metaKey?'Ctrl+':'')+e.key); }
+},true);
+document.addEventListener('dragstart',e=>e.preventDefault());
+window.addEventListener('beforeunload',(e)=>{ if(S && !S.done){ e.preventDefault(); e.returnValue=''; } });
+
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=null; // stato sessione
+const SEL={sc:false,load:false,gen:false};
+
+function startSession(code){
+  const seed=hash32(code);
+  const r=rng(seed);
+  const order=r()<0.5?['gen','st']:['st','gen'];
+  S={code,order,gen:buildGen(rng(seed^0x9e37)),st:buildST(rng(seed^0x51ed)),ans:{gen:{},st:{}},mcq:{gen:{},st:{}},cur:0,flip:r()<0.5,done:false};
+  SEL.sc=false; SEL.load=false; SEL.gen=false;
+  EX.viol=[]; EX.allow=false; EX.start=new Date();
+  $('login').hidden=true; $('lab').hidden=false; $('who').textContent='Codice '+code;
+  enterFull();
+  render();
+}
+function curKey(){return S.order[S.cur];}
+function fillAnswers(){
+  const items=S[curKey()].items, mcq=S[curKey()].mcq;
+  return items.every(i=>String(S.ans[curKey()][i.id]||'').trim()!=='') && mcq.every(m=>S.mcq[curKey()][m.id]!==undefined);
+}
+function allDone(){return S.order.every(k=>{const p=S[k];return p.items.every(i=>String(S.ans[k][i.id]||'').trim()!=='')&&p.mcq.every(m=>S.mcq[k][m.id]!==undefined);});}
+
+
+// ===== METODO PASSO PASSO (testo generale, senza valori) =====
+const METODO={
+ gen:[
+  'Con S₁ e S₂ aperti, leggi sul voltmetro la tensione a vuoto V₀. È la tensione E del generatore.',
+  'Chiudi S₁ (corto circuito) e leggi sull’amperometro la corrente di corto circuito I_cc.',
+  'Calcola la resistenza interna con la legge di Ohm applicata al generatore: R_i = V₀ / I_cc.',
+  'Calcola la conduttanza interna: G_i = 1 / R_i. Si misura in siemens (S).',
+  'Trasforma in generatore di corrente: la corrente I_cc va in parallelo alla conduttanza G_i (il simbolo è un cerchio con una freccia).',
+  'Con il carico R_L chiuso su S₂, calcola la conduttanza di carico G_L = 1 / R_L. Poi usa il partitore di corrente: I_L = I_cc · G_L / (G_i + G_L).',
+  'Calcola la tensione sul carico: V_L = I_L · R_L. Deve coincidere con la misura della console (entro il 2%).',
+  'Dal generatore di corrente torni al generatore di tensione: E = I_cc / G_i e R_i = 1 / G_i.'
+ ],
+ st:[
+  'Riconosci il triangolo: tre resistenze che formano un anello fra i nodi 1, 2 e 3. Ogni lato collega due nodi (R₁₂ fra 1 e 2, R₂₃ fra 2 e 3, R₃₁ fra 3 e 1).',
+  'Calcola la somma S = R₁₂ + R₂₃ + R₃₁.',
+  'Triangolo → stella: il braccio di un nodo è il prodotto dei due lati che toccano quel nodo, diviso S. Esempio: R₁ = R₁₂ · R₃₁ / S, perché il nodo 1 è toccato da R₁₂ e R₃₁.',
+  'Verifica con l’ohmmetro: con il nodo 3 libero, la resistenza fra 1 e 2 è R₁ + R₂. Deve coincidere con la misura.',
+  'Con il generatore E collegato fra 1 e 2, la corrente erogata è I = E / (R₁ + R₂).',
+  'Stella → triangolo: calcola P = R₁·R₂ + R₂·R₃ + R₃·R₁. Ogni lato è P diviso la resistenza della stella opposta: R₁₂ = P / R₃, R₂₃ = P / R₁, R₃₁ = P / R₂.',
+  'Controlla che i valori ricavati riproducano la stella o il triangolo di partenza.'
+ ]
+};
+function metodoHtml(k){return `<details class="metodo" open><summary>Metodo passo passo</summary><ol>${METODO[k].map(s=>`<li>${s}</li>`).join('')}</ol></details>`;}
+
+// ---- schemi ----
+const L_=(x,y1,x2,y2)=>`<line x1="${x}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#132B4F" stroke-width="3"/>`;
+const BOX=(x,y,w,h,lab)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="#2667A8" stroke-width="3"/><text x="${x+w/2}" y="${y-8}" text-anchor="middle" class="sl">${lab}</text>`;
+const TXT=(x,y,t,c)=>`<text x="${x}" y="${y}" text-anchor="middle" class="sl" fill="${c||'#1E2633'}">${t}</text>`;
+function schemaGen(flip){
+  const f=(x)=>flip?640-x:x; // specchio orizzontale
+  let s='';
+  s+=L_(f(70),60,f(600),60)+L_(f(70),240,f(600),240);
+  s+=L_(f(70),60,f(70),118)+L_(f(70),182,f(70),240);
+  s+=`<circle cx="${f(70)}" cy="150" r="30" fill="#fff" stroke="#E8892B" stroke-width="4"/>`+TXT(f(70),156,'E','#1E2633');
+  s+=TXT(f(70),100,'+','#1E2633');
+  s+=BOX(f(170),50,80,20,'R<tspan baseline-shift="sub" font-size="14">i</tspan>');
+  s+=L_(f(250),60,f(300),60)+L_(f(330),60,f(440),60); // resto del ramo
+  s+=`<rect x="${f(300)-18}" y="46" width="36" height="28" fill="#E6EEF7" stroke="#132B4F" stroke-width="2"/>`+TXT(f(318),40,'S₁','#132B4F');
+  s+=L_(f(330),60,f(330),240);
+  s+=`<rect x="${f(400)-20}" y="46" width="40" height="28" fill="#E6EEF7" stroke="#132B4F" stroke-width="2"/>`+TXT(f(420),40,'S₂','#132B4F');
+  s+=BOX(f(500)-20,110,40,80,'R<tspan baseline-shift="sub" font-size="14">L</tspan>');
+  s+=L_(f(500),60,f(500),110)+L_(f(500),190,f(500),240);
+  s+=TXT(f(330)+(flip?-10:10),150,'A','#2667A8');
+  return `<svg viewBox="0 0 640 280" role="img" aria-label="Schema del generatore di tensione reale con interruttori S1 di corto circuito e S2 del carico">${s}</svg>`;
+}
+function schemaTri(flip,perm){
+  // perm: posizioni dei nodi 1,2,3 (0=alto,1=basso-sx,2=basso-dx)
+  const pos=[[320,40],[110,230],[530,230]];
+  const N=[0,1,2].map(n=>pos[perm[n]]);
+  const p=S.st.p;
+  const sides=[[0,1,p.t12,'R₁₂'],[1,2,p.t23,'R₂₃'],[2,0,p.t31,'R₃₁']];
+  let s='';
+  sides.forEach(([a,b,v,lab])=>{
+    const A=N[a],B=N[b];
+    s+=L_(A[0],A[1],B[0],B[1]);
+    const mx=(A[0]+B[0])/2, my=(A[1]+B[1])/2;
+    s+=`<rect x="${mx-30}" y="${my-13}" width="60" height="26" fill="#fff" stroke="#2667A8" stroke-width="2"/>`;
+    s+=TXT(mx,my+6,lab+' = '+fmt(v,0),'#1E2633');
+  });
+  N.forEach((A,i)=>{s+=`<circle cx="${A[0]}" cy="${A[1]}" r="8" fill="#132B4F"/>`;s+=TXT(A[0]+(A[0]>300?26:-26),A[1]+(A[1]<100?-14:20),String(i+1),'#132B4F');});
+  return `<svg viewBox="0 0 640 280" role="img" aria-label="Triangolo di resistenze tra i nodi 1, 2 e 3">${s}</svg>`;
+}
+function schemaStarGiven(){
+  const c=S.st.p; const cen=[320,140];
+  const arms=[[320,40],[150,220],[490,220]];
+  let s='';
+  arms.forEach(([x,y])=>{s+=L_(cen[0],cen[1],x,y);});
+  arms.forEach(([x,y],i)=>{s+=`<circle cx="${x}" cy="${y}" r="8" fill="#132B4F"/>`+TXT(x,y+(y<100?-16:26),String(i+1),'#132B4F');});
+  s+=`<circle cx="${cen[0]}" cy="${cen[1]}" r="6" fill="#132B4F"/>`;
+  const labs=[['R₁ = '+fmt(c.c1,0)+' Ω',360,80],['R₂ = '+fmt(c.c2,0)+' Ω',210,190],['R₃ = '+fmt(c.c3,0)+' Ω',440,190]];
+  labs.forEach(([t,x,y])=>{s+=`<rect x="${x-70}" y="${y-22}" width="140" height="30" rx="6" fill="#E6EEF7" stroke="#2667A8" stroke-width="2"/>`+TXT(x,y,t,'#132B4F');});
+  return `<svg viewBox="0 0 640 280" role="img" aria-label="Stella con valori R1, R2 e R3 dati">${s}</svg>`;
+}
+
+// ---- rendering ----
+function render(){
+  if(!S) return;
+  const k=curKey(), p=S[k], isGen=k==='gen';
+  const nameBar=S.order.map((kk,i)=>`<button class="tab" aria-current="${i===S.cur?'step':'false'}" data-tab="${i}">Prova ${i+1}${allOk(kk)?' ✓':''}</button>`).join('');
+  $('tabs').innerHTML=nameBar;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{S.cur=+b.dataset.tab;render();});
+  // console
+  const st=isGen?genState(p.p,{short:SEL.sc,load:SEL.load&&!SEL.sc}):stState(p.p);
+  let inst='';
+  if(isGen){
+    inst=`<div class="meter"><span>Voltmetro V</span><strong>${SEL.sc?fmt(0):fmt(st.V)} V</strong></div>
+          <div class="meter"><span>Amperometro A</span><strong>${fmt(st.I)} A</strong></div>
+          <div class="switches">
+            <button class="sw" aria-pressed="${SEL.sc}" id="swSc">S₁ corto circuito: ${SEL.sc?'CHIUSO':'APERTO'}</button>
+            <button class="sw" aria-pressed="${SEL.load}" id="swLd" ${SEL.sc?'disabled':''}>S₂ carico R_L: ${SEL.load?'CHIUSO':'APERTO'}</button>
+          </div>`;
+  } else {
+    inst=`<div class="meter"><span>Ohmmetro Ω (tra 1 e 2, nodo 3 libero)</span><strong>${fmt(st.R12)} Ω</strong></div>
+          <div class="meter"><span>Amperometro A (con E tra 1 e 2)</span><strong>${SEL.gen?fmt(st.I)+' A':'—'}</strong></div>
+          <div class="switches"><button class="sw" aria-pressed="${SEL.gen}" id="swGen">Generatore E tra 1 e 2: ${SEL.gen?'ACCESO':'SPENTO'}</button></div>
+          <p class="note">E = ${fmt(p.p.E,0)} V</p>`;
+  }
+  const fields=p.items.map(it=>`<label class="field"><span>${it.label} <em>[${it.unit}]</em></span>
+     <input id="in-${it.id}" inputmode="decimal" autocomplete="off" value="${esc(S.ans[k][it.id]||'')}" aria-label="${esc(it.label)}"></label>`).join('');
+  $('console').innerHTML=`<h2>Console</h2>${inst}<h3>Inserisci i risultati</h3>${fields}`;
+  // banco
+  let schema='';
+  let nameplate='';
+  if(isGen){
+    schema=schemaGen(S.flip);
+    nameplate=`<div class="plate"><strong>Secondo generatore (targa):</strong> generatore reale di corrente, I_cc = ${fmt(p.p.Icc2)} A, G_i = ${fmt(p.p.Gi2)} S. Trova il generatore di tensione equivalente.</div>
+      <div class="plate"><strong>Carico per la prova:</strong> R_L = ${fmt(p.p.RL,0)} Ω. Per il primo generatore (tensione) misura E e R_i con la console.</div>`;
+  } else {
+    const perm=S.flip?[1,0,2]:[0,1,2];
+    schema=schemaTri(S.flip,perm)+'<div class="split">'+schemaStarGiven()+'</div>';
+    nameplate=`<div class="plate"><strong>Triangolo da trasformare:</strong> R₁₂ = ${fmt(p.p.t12,0)} Ω, R₂₃ = ${fmt(p.p.t23,0)} Ω, R₃₁ = ${fmt(p.p.t31,0)} Ω. Calcola la stella equivalente.</div>
+      <div class="plate"><strong>Stella da trasformare in triangolo:</strong> R₁ = ${fmt(p.p.c1,0)} Ω, R₂ = ${fmt(p.p.c2,0)} Ω, R₃ = ${fmt(p.p.c3,0)} Ω.</div>`;
+  }
+  const mcq=p.mcq.map(m=>`<fieldset class="mcq"><legend>${m.q}</legend>${m.opts.map((o,i)=>`<label class="opt"><input type="radio" name="${m.id}" value="${i}" ${S.mcq[k][m.id]===i?'checked':''}> ${o.t}</label>`).join('')}</fieldset>`).join('');
+  $('bench').innerHTML=`<h2>${p.titolo}</h2>
+    ${metodoHtml(k)}
+    <p class="task">${isGen?'Misura con la console, poi trasforma il generatore reale di tensione in uno di corrente e viceversa. Scrivi i risultati a sinistra.':'Trasforma il triangolo in stella, poi la stella in triangolo. Misura e scrivi i risultati a sinistra.'}</p>
+    <button class="voice" id="voice">🔊 Leggi le istruzioni</button>
+    <div class="schema">${schema}</div>${nameplate}
+    <h3>Domande</h3>${mcq}
+    <div class="actions">
+      <button class="primary" id="btnFinish" ${allDone()?'':'disabled'}>Consegna e genera la relazione</button>
+      ${S.cur<S.order.length-1?'<button id="btnNext">Prova successiva →</button>':''}
+    </div>
+    <div id="esito"></div>`;
+  bind();
+}
+function allOk(k){return S[k].items.every(i=>String(S.ans[k][i.id]||'').trim()!=='')&&S[k].mcq.every(m=>S.mcq[k][m.id]!==undefined);}
+function bind(){
+  const k=curKey();
+  S[k].items.forEach(it=>{const el=$('in-'+it.id); el.oninput=()=>{S.ans[k][it.id]=el.value; const b=$('btnFinish'); if(b) b.disabled=!allDone();};});
+  S[k].mcq.forEach(m=>document.querySelectorAll(`input[name="${m.id}"]`).forEach(r=>r.onchange=()=>{S.mcq[k][m.id]=+r.value; const b=$('btnFinish'); if(b) b.disabled=!allDone();}));
+  const sc=$('swSc'); if(sc) sc.onclick=()=>{SEL.sc=!SEL.sc; if(SEL.sc) SEL.load=false; render();};
+  const ld=$('swLd'); if(ld) ld.onclick=()=>{SEL.load=!SEL.load; render();};
+  const gn=$('swGen'); if(gn) gn.onclick=()=>{SEL.gen=!SEL.gen; render();};
+  const v=$('voice'); if(v) v.onclick=()=>speak($('bench').querySelector('.task').textContent);
+  const nx=$('btnNext'); if(nx) nx.onclick=()=>{S.cur++; render();};
+  const fi=$('btnFinish'); if(fi) fi.onclick=finish;
+  const gb=$('guardBtn'); if(gb) gb.onclick=resume;
+}
+function speak(t){try{speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t));}catch(e){}}
+
+// ---- correzione e relazione ----
+function results(){
+  const out={};
+  ['gen','st'].forEach(k=>{
+    const c=checkItems(S[k].items,S.ans[k]); const m=checkMcq(S[k].mcq,S.mcq[k]);
+    out[k]={c,m,pts:c.pts+m.pts,max:S[k].items.length+S[k].mcq.length};
+  });
+  const pts=Math.max(0,out.gen.pts)+Math.max(0,out.st.pts);
+  const max=out.gen.max+out.st.max;
+  return {out,pts:Math.max(0,Math.min(max,pts)),max,voto:grade(pts,max)};
+}
+function finish(){
+  const R=results(); S.done=true;
+  const rows=S.order.map((k,i)=>{const o=R.out[k];const ok=o.pts/o.max;
+    return `<h3>Prova ${i+1} · ${k==='gen'?'Generatori reali':'Stella e triangolo'}: ${fmt(Math.max(0,o.pts),1)} / ${o.max} punti ${ok>=0.6?'':'· argomento NON acquisito'}</h3>`;}).join('');
+  const detail=S.order.map((k)=>{const o=R.out[k];
+    return o.c.out.map(x=>`<li>${x.ok?'✓':'✗'} ${x.msg}${x.pen?' (−0,5)':''}</li>`).join('')+o.m.out.map(x=>`<li>${x.ok?'✓':'✗'} ${x.msg}</li>`).join('');}).join('');
+  $('esito').innerHTML=`<section class="esito"><h2>Esito: ${fmt(R.voto,1)}</h2>
+     <p>Punti: ${fmt(R.pts,1)} / ${R.max}. Il voto è 1 + 9 × punti / punti totali. Infrazioni registrate: ${EX.viol.length}.</p>${rows}<ul>${detail}</ul>
+     <button class="primary" id="btnPdf">Scarica la relazione (PDF)</button><p class="note">Poi allega il PDF nel compito di Moodle.</p><p id="pdfMsg" class="note" role="status"></p></section>`;
+  $('btnPdf').onclick=()=>makePdf(R);
+  $('esito').scrollIntoView({behavior:'smooth'});
+}
+async function makePdf(R){
+  const msg=$('pdfMsg');
+  try{
+    const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+    let y=20; const L=(t,sz,bold)=>{doc.setFontSize(sz||12); doc.setFont('helvetica',bold?'bold':'normal'); const lines=doc.splitTextToSize(t,170); lines.forEach(l=>{if(y>280){doc.addPage();y=20;} doc.text(l,20,y); y+=(sz||12)*0.5;}); y+=2;};
+    L('Relazione di laboratorio · Reti in continua',18,true);
+    L('Classe 3E AU · A.S. 2026-27 · Codice '+S.code,12);
+    L('Voto: '+fmt(R.voto,1)+' (punti '+fmt(R.pts,1)+' / '+R.max+')',16,true);
+    S.order.forEach((k,i)=>{const o=R.out[k];
+      L('Prova '+(i+1)+': '+(k==='gen'?'Trasformazione dei generatori reali':'Trasformazione stella-triangolo')+' — '+fmt(Math.max(0,o.pts),1)+' / '+o.max+' punti',13,true);
+      o.c.out.forEach(x=>L((x.ok?'[OK] ':'[--] ')+x.msg+(x.pen?' (penalità −0,5)':''),10));
+      o.m.out.forEach(x=>L((x.ok?'[OK] ':'[--] ')+x.msg,10));
+    });
+    L('Infrazioni registrate durante la prova: '+EX.viol.length,12,true);
+    EX.viol.forEach(v=>L('  '+v.t+' · '+v.tipo,10));
+    L('Dati assegnati (per verifica del docente): '+JSON.stringify(S.gen.p)+' · '+JSON.stringify(S.st.p),9);
+    L('Prof.ssa Federica Capaldini',10,true);
+    const blob=doc.output('blob');
+    const d=(window.claude&&window.claude.use)?await window.claude.use('downloads'):null;
+    if(!d){msg.textContent='Il salvataggio non è disponibile in questa visualizzazione. Apri la pagina dal link del laboratorio.'; return;}
+    EX.allow=true; try{ await d.save({filename:'Relazione_'+S.code+'.pdf',data:blob}); } finally { setTimeout(()=>{EX.allow=false;},1500); }
+    msg.textContent='Relazione salvata.';
+  }catch(e){ msg.textContent='Non è stato possibile creare la relazione. Riprova.'; }
+}
+
+// ---- avvio ----
+document.addEventListener('DOMContentLoaded',()=>{
+  const fb=$('fullBtn'); if(fb) fb.onclick=enterFull;
+  const wm=$('wm'); for(let i=0;i<8;i++){const d=document.createElement('div');d.textContent='Prof.ssa Federica Capaldini';wm.appendChild(d);}
+  $('form').onsubmit=(e)=>{e.preventDefault(); const c=$('code').value.trim().toUpperCase(); if(!/^3EAU-\d{2}$/.test(c)){$('err').textContent='Il codice ha la forma 3EAU-00 (esempio 3EAU-07). Chiedilo alla prof.'; return;} $('err').textContent=''; startSession(c);};
+  ['contextmenu','copy','cut'].forEach(ev=>document.addEventListener(ev,e=>{if(!e.target.closest||!e.target.closest('input'))e.preventDefault();}));
+});
+
+</script>
